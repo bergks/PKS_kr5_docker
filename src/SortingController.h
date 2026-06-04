@@ -18,10 +18,12 @@ class SortingController : public QObject {
     Q_PROPERTY(QString stepDescription READ stepDescription NOTIFY stepDescriptionChanged)
     Q_PROPERTY(QVector<int> activeIndexes READ activeIndexes NOTIFY activeIndexesChanged)
     Q_PROPERTY(int pivotIndex READ pivotIndex NOTIFY activeIndexesChanged)
+    Q_PROPERTY(QString algorithmDescription READ algorithmDescription NOTIFY algorithmDescriptionChanged)
 
 public:
     static SortingController& instance();
     explicit SortingController(ArrayModel* model, QObject* parent = nullptr);
+    ~SortingController();
 
     bool isRunning() const { return m_isRunning; }
     bool isPaused() const { return m_isPaused; }
@@ -33,6 +35,7 @@ public:
     QString currentAlgorithm() const { return m_algorithmName; }
     QString stepDescription() const { return m_stepDescription; }
     QVector<int> activeIndexes() const { return m_activeIndexes; }
+    QString algorithmDescription() const { return m_algorithmDescription; }
 
     Q_INVOKABLE void setSpeed(int speed);
 
@@ -53,6 +56,7 @@ signals:
     void stepDescriptionChanged();
     void activeIndexesChanged();
     void sortingFinished();
+    void algorithmDescriptionChanged();
 
 private slots:
     void onTimerTick();
@@ -71,6 +75,7 @@ private:
     QString m_algorithmName;
     QString m_stepDescription;
     QVector<int> m_activeIndexes;
+    QString m_algorithmDescription;
 
     void executeStep(const Step& step);
     void resetToStart();

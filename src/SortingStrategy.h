@@ -4,12 +4,21 @@
 #include <QVector>
 #include <QString>
 
+enum class StepType {
+    Compare,
+    Swap,
+    PivotSelect,
+    Merge,
+    Write,
+    Finished
+};
+
 struct Step {
     QVector<int> arrayState;
-    int index1;
-    int index2;
-    int pivotIndex;
-    QString description;
+    QVector<int> activeIndices = {};
+    int pivotIndex = -1;
+    StepType type = StepType::Compare;
+    QString description = "";
 };
 
 class SortingStrategy {

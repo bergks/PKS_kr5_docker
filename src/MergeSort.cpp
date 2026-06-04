@@ -1,87 +1,112 @@
 #include "MergeSort.h"
 
-QVector<Step> MergeSort::execute(const QVector<int>& input) {
+QVector<Step> MergeSort::execute(const QVector<int>& input)
+{
     QVector<Step> steps;
     QVector<int> array = input;
+
     if (!array.isEmpty()) {
         mergeSort(array, 0, array.size() - 1, steps);
     }
+
+    Step finishedStep;
+    finishedStep.arrayState = array;
+    finishedStep.type = StepType::Finished;
+    finishedStep.description = "Сортировка завершена";
+
+    steps.append(finishedStep);
+
     return steps;
 }
 
-void MergeSort::mergeSort(QVector<int>& array, int left, int right, QVector<Step>& steps) {
+void MergeSort::mergeSort(QVector<int>& array,
+                          int left,
+                          int right,
+                          QVector<Step>& steps)
+{
     if (left < right) {
+
         int mid = left + (right - left) / 2;
+
         mergeSort(array, left, mid, steps);
         mergeSort(array, mid + 1, right, steps);
+
         merge(array, left, mid, right, steps);
     }
 }
 
-void MergeSort::merge(QVector<int>& array, int left, int mid, int right, QVector<Step>& steps) {
+void MergeSort::merge(QVector<int>& array,
+                      int left,
+                      int mid,
+                      int right,
+                      QVector<Step>& steps)
+{
     QVector<int> temp;
-    int i = left, j = mid + 1;
+
+    int i = left;
+    int j = mid + 1;
+
+    Step mergeStep;
+    mergeStep.arrayState = array;
+    mergeStep.activeIndices = {left, mid, right};
+    mergeStep.type = StepType::Merge;
+    mergeStep.description =
+        QString("Объединяем части [%1..%2] и [%3..%4]")
+            .arg(left)
+            .arg(mid)
+            .arg(mid + 1)
+            .arg(right);
+
+    steps.append(mergeStep);
 
     while (i <= mid && j <= right) {
-        Step step;
-        step.index1 = i;
-        step.index2 = j;
-        step.description = QString("Сравниваем %1 и %2").arg(array[i]).arg(array[j]);
+
+        Step compareStep;
+        compareStep.arrayState = array;
+        compareStep.activeIndices = {i, j};
+        compareStep.type = StepType::Compare;
+        compareStep.description =
+            QString("Сравниваем %1 и %2")
+                .arg(array[i])
+                .arg(array[j]);
+
+        steps.append(compareStep);
 
         if (array[i] <= array[j]) {
-            temp.append(array[i]);
-            step.description += " → берём левый";
-            i++;
-        } else {
-            temp.append(array[j]);
-            step.description += " → берём правый";
-            j++;
-        }
 
-        QVector<int> displayArray = array;
-        int ti = 0;
-        for (int k = left; ti < temp.size(); ++k, ++ti) {
-            displayArray[k] = temp[ti];
+            temp.append(array[i]);
+            ++i;
+
+        } else {
+
+            temp.append(array[j]);
+            ++j;
         }
-        step.arrayState = displayArray;
-        steps.append(step);
     }
 
     while (i <= mid) {
-        Step step;
-        step.index1 = i;
-        step.index2 = i;
-        step.description = QString("Добавляем оставшийся левый %1").arg(array[i]);
         temp.append(array[i]);
-        i++;
-
-        QVector<int> displayArray = array;
-        int ti = 0;
-        for (int k = left; ti < temp.size(); ++k, ++ti) {
-            displayArray[k] = temp[ti];
-        }
-        step.arrayState = displayArray;
-        steps.append(step);
+        ++i;
     }
 
     while (j <= right) {
-        Step step;
-        step.index1 = j;
-        step.index2 = j;
-        step.description = QString("Добавляем оставшийся правый %1").arg(array[j]);
         temp.append(array[j]);
-        j++;
-
-        QVector<int> displayArray = array;
-        int ti = 0;
-        for (int k = left; ti < temp.size(); ++k, ++ti) {
-            displayArray[k] = temp[ti];
-        }
-        step.arrayState = displayArray;
-        steps.append(step);
+        ++j;
     }
 
     for (int k = 0; k < temp.size(); ++k) {
+
         array[left + k] = temp[k];
+
+        Step writeStep;
+        writeStep.arrayState = array;
+        writeStep.activeIndices = {left + k};
+        writeStep.type = StepType::Write;
+        writeStep.description =
+            QString("Записываем %1 в позицию %2")
+                .arg(temp[k])
+                .arg(left + k);
+
+        steps.append(writeStep);
     }
 }

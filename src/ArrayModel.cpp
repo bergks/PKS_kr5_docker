@@ -27,13 +27,6 @@ void ArrayModel::generateRandom(int size) {
     emit sizeChanged();
 }
 
-void ArrayModel::swapElements(int i, int j) {
-    if (i >= 0 && i < m_data.size() && j >= 0 && j < m_data.size()) {
-        std::swap(m_data[i], m_data[j]);
-        emit dataChanged();
-    }
-}
-
 void ArrayModel::reset() {
     m_data = m_originalData;
     emit dataChanged();

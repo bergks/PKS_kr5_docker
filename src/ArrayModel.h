@@ -16,7 +16,6 @@ public:
     int size() const { return m_data.size(); }
 
     Q_INVOKABLE void generateRandom(int size);
-    Q_INVOKABLE void swapElements(int i, int j);
     Q_INVOKABLE void setArray(const QVector<int>& arr);
     Q_INVOKABLE void reset();
 

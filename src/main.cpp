@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QtGlobal>
+
 #include "ArrayModel.h"
 #include "SortingController.h"
 
@@ -8,17 +10,19 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    qmlRegisterType<ArrayModel>("SortVisualizer", 1, 0, "ArrayModel");
-    qmlRegisterType<SortingController>("SortVisualizer", 1, 0, "SortingController");
-
     ArrayModel arrayModel;
+
     SortingController controller(&arrayModel);
+
     controller.selectAlgorithm("Пузырёк");
 
     QQmlApplicationEngine engine;
 
-    engine.rootContext()->setContextProperty("arrayModel", &arrayModel);
-    engine.rootContext()->setContextProperty("controller", &controller);
+    engine.rootContext()->setContextProperty(
+        "arrayModel", &arrayModel);
+
+    engine.rootContext()->setContextProperty(
+        "controller", &controller);
 
     QObject::connect(
         &engine,
@@ -27,10 +31,15 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     engine.loadFromModule("sort_visualizer", "Main");
+#else
+    engine.load(QUrl::fromLocalFile("/app/qml/Main.qml"));
+#endif
 
-    if (engine.rootObjects().isEmpty())
+    if (engine.rootObjects().isEmpty()) {
         return -1;
+    }
 
     return app.exec();
 }
